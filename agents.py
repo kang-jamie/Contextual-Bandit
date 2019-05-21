@@ -1,5 +1,7 @@
 """
-@author: Jamie Kang
+author: Jamie Kang
+jamiekang@stanford.edu
+
 """
 
 import numpy as np
