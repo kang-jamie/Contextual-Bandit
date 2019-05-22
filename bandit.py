@@ -18,7 +18,8 @@ class ContextualBandit(object):
 		pass
 
 	def set_covariates(self):
-		self.covariates = np.random.exponential(size=(self.n, self.p))
+		self.covariates = np.random.uniform(low=-1,high=1,size=(self.n, self.p))
+		# To satisfy covariate diversity, MUST contain the origin
 
 	def set_rewards(self):
 		self.betas = np.random.uniform(size=(self.p, self.k)) #NOTE: Change this
@@ -29,11 +30,17 @@ class ContextualBandit(object):
 		rewards = np.dot(x,betas)
 		return(rewards)
 
-	def _get_covariate(self, t):
+	def get_covariate(self, t):
 		this_covaraite = self.covariates[t,]
 		return this_covaraite
 
-	def _get_rewards(self, x):
+	def get_rewards(self, x):
 		this_reward = self.compute_rewards(x, self.betas)
 		# this_reward = np.dot(x, self.betas)
 		return this_reward
+
+	def get_true_arm_reward(self, x):
+		this_reward = self.compute_rewards(x, self.betas)
+		arm = np.argmax(this_reward)
+		reward = this_reward.max()
+		return [arm, reward]
