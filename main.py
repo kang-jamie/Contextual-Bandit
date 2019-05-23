@@ -17,7 +17,7 @@ np.random.seed(312)
 ## Hyperparameters for the contextual bandit model
 k = 2 # number of arms
 p = 5 # covariate dimension
-n = 1000 # number of data
+n = 200 # number of data
 
 ## Hyperparameters for the bandit agent
 h = 0.5
