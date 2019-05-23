@@ -8,7 +8,8 @@ import numpy as np
 from sklearn import linear_model
 
 class Agent(object):
-	def __init__(self, n, h, k, greedy_only=False, **kwargs):
+	def __init__(self, n, h, k, greedy_only=False, name=None, **kwargs):
+		self.name = name
 		self.h = h
 		self.k = k
 		self.n = n
@@ -21,7 +22,8 @@ class Agent(object):
 			self._FS_schedule()	
 
 	def __str__(self):
-		pass
+		return self.name
+		# pass
 
 	def _feature_map(self, x):
 		#TODO
@@ -113,7 +115,8 @@ class Agent_LASSO(Agent):
 		self.lam = lam
 
 	def __str__(self):
-		return "AgentLASSO(lambda={})".format(self.lam)
+		# return "AgentLASSO(lambda={})".format(self.lam)
+		return self.name
 
 	def estimate_reward(self, z_train, y_train, z):
 		lasso_model = linear_model.Lasso(alpha=self.lam)
