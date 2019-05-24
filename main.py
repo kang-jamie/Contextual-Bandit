@@ -33,11 +33,8 @@ betas = bandit.betas
 agentList = []
 # agentList.append(Agent_LASSO(n=n, h=h, k=k, greedy_only=True, lam=0.01, name= "Greedy_LASSO"))
 agentList.append(Agent_OLS(n=n, h=h, k=k, greedy_only=True, name= "Greedy_OLS"))
-# agentList.append(Agent_OLS(n=n, h=h, k=k, q=20, greedy_only=False, name= "OLS with q=100"))
 agentList.append(Agent_OLS(n=n, h=h, k=k, q=20, greedy_only=False, name= "OLS with q=20"))
 agentList.append(Agent_OLS(n=n, h=h, k=k, q=50, greedy_only=False, name= "OLS with q=50"))
-
-# agentList.append(Agent_LASSO(n=n, h=h, k=k, greedy_only=False, lam=0.01, name = "LASSO"))
 
 plt.figure()
 
@@ -92,21 +89,12 @@ for agent in agentList:
 	# print("True arms: ", true_arms)
 
 	## Plot the results
-	# plt.figure()
 	avg_regret_per_period[0] = avg_regret_per_period[1]
 	roll_avg_regret_per_period = pd.DataFrame(avg_regret_per_period).rolling(50).mean() #to plot moving average for less noise
 	# plt.plot(roll_avg_regret_per_period, label="roll_"+str(agent))
 	# plt.plot(avg_regret_per_period, label=str(agent))
 	plt.plot(cum_regret, label=str(agent))
 
-
-	# roll_avg_regret_per_period = pd.DataFrame(avg_regret_per_period).rolling(50).mean() #to plot moving average for less noise
-	# plt.plot(cum_regret, label=str(agent))
-
-	# plt.plot(cum_regret, label=str(agent))
-
-	# plt.ylim([0, None])
-	# plt.legend(handles=handles, loc="center", bbox_to_anchor=(0.5, -0.25))
 plt.legend(frameon=False)
 plt.xlabel("t")
 # plt.ylabel("Avg regret per period")

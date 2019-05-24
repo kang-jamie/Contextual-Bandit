@@ -21,10 +21,10 @@ class ContextualBandit(object):
 	def set_covariates(self):
 		if self.diversity:
 			self.covariates = np.random.uniform(low=-1,high=1,size=(self.n, self.p))
-			# self.covariates = np.random.normal(loc=0,scale=1,size=(self.n, self.p))
+			# To satisfy covariate diversity, MUST contain the origin
+
 		else:
 			self.covariates = np.random.uniform(size=(self.n, self.p))
-		# To satisfy covariate diversity, MUST contain the origin
 
 	def set_rewards(self):
 		self.betas = np.random.uniform(size=(self.p, self.k)) #NOTE: Change this
