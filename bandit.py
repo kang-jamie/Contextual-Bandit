@@ -7,10 +7,11 @@ jamiekang@stanford.edu
 import numpy as np
 
 class ContextualBandit(object):
-	def __init__(self, n, p, k):
+	def __init__(self, n, p, k, diversity=True):
 		self.n = n
 		self.p = p
 		self.k = k
+		self.diversity = diversity
 
 		self.set_covariates()
 		self.set_rewards()
@@ -18,7 +19,11 @@ class ContextualBandit(object):
 		pass
 
 	def set_covariates(self):
-		self.covariates = np.random.uniform(low=-1,high=1,size=(self.n, self.p))
+		if self.diversity:
+			self.covariates = np.random.uniform(low=-1,high=1,size=(self.n, self.p))
+			# self.covariates = np.random.normal(loc=0,scale=1,size=(self.n, self.p))
+		else:
+			self.covariates = np.random.uniform(size=(self.n, self.p))
 		# To satisfy covariate diversity, MUST contain the origin
 
 	def set_rewards(self):
