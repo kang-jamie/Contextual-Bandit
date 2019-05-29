@@ -59,24 +59,6 @@ class Agent(object):
 		else:
 			self.history = np.vstack((self.history,data))
 
-	# def _FS_schedule(self):
-	# 	q = self.q
-	# 	FS_num = 0
-	# 	self.FS_schedule = np.zeros((self.n)) - 1 # initialize to all-greedy schedule (i.e. -1)
-	# 	for i in range(self.k):
-	# 		l = 0
-	# 		while ((2**l -1)*self.n*q + q*(i-1)+1) < self.n:
-	# 			for j in range((q*(i-1)+1),(q*i+1)):
-	# 				Ti = (2**l -1)*self.n*q + j
-	# 				if Ti < self.n:
-	# 					self.FS_schedule[Ti] = i
-	# 					FS_num = FS_num + 1
-	# 				else:
-	# 					break
-	# 			l = l+1
-	# 	print("FS_num: ", FS_num)
-	# 	print("FS_num2: ", len(np.nonzero(self.FS_schedule+1)))
-
 
 	def _FS_schedule(self):
 		FS_num = 0
