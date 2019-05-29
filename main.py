@@ -16,15 +16,15 @@ np.random.seed(111)
 
 ## Hyperparameters for the contextual bandit model
 k = 2 # number of arms
-p = 5 # covariate dimension
+p = 50 # covariate dimension
 # p = 100 # covariate dimension
-n = 1000 # number of data
+n = 5000 # number of data
 
 ## Hyperparameters for the bandit agent
 h = 5
 
 ## Initialize bandit model
-bandit = ContextualBandit(n,p,k, diversity=True)
+bandit = ContextualBandit(n,p,k, diversity=True, sparsity=True, linear=True)
 
 X = bandit.covariates
 rewards = bandit.rewards
@@ -34,6 +34,8 @@ betas = bandit.betas
 agentList = []
 agentList.append(Agent_OLS(n=n, h=h, k=k, greedy_only=True, name= "Greedy_OLS"))
 agentList.append(Agent_OLS(n=n, h=h, k=k, greedy_only=False, name= "OLS"))
+agentList.append(Agent_LASSO(n=n, h=h, k=k, greedy_only=False, lam= 0.05, name= "LASSO"))
+
 # agentList.append(Agent_OLS(n=n, h=h, k=k, q=50, greedy_only=False, name= "OLS with q=50"))
 
 # agentList.append(Agent_LASSO(n=n, h=h, k=k, greedy_only=False, lam=0.01, name = "LASSO"))
