@@ -75,7 +75,15 @@ class Agent(object):
 					else:
 						break
 				l = l+1
-		# print("FS_num: ", FS_num)
+		print("FS_num: ", FS_num)
+
+
+		# #TODO
+		# self.FS_schedule = np.zeros((self.n)) - 1 # initialize to all-greedy schedule (i.e. -1)
+		# FS_num = int(np.log(self.n) * 30) #TODO: change this 30 to sth else
+		# FS_t = np.random.choice(a=range(int(self.n/1)), size=FS_num, replace=False) #TODO: change /2 
+		# self.FS_schedule[FS_t] = np.random.randint(low=0, high=self.k, size=FS_num, dtype='I')
+		# print("FS_num: ", FS_num) #TODO: remove this
 
 	def _FS_decision(self, x):
 		rewards = self._predict_rewards(self.FS, x)
@@ -152,5 +160,4 @@ class Agent_OLS(Agent):
 # class Agent_KNN(Agent):
 
 # class Agent_RF(Agent):
-
 

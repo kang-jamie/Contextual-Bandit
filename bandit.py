@@ -7,10 +7,11 @@ jamiekang@stanford.edu
 import numpy as np
 
 class ContextualBandit(object):
-	def __init__(self, n, p, k, diversity=True):
+	def __init__(self, n, p, k, diversity=True, sparsity=False):
 		self.n = n
 		self.p = p
 		self.k = k
+		self.sparsity = sparsity
 		self.diversity = diversity
 
 		self.set_covariates()
@@ -21,13 +22,18 @@ class ContextualBandit(object):
 	def set_covariates(self):
 		if self.diversity:
 			self.covariates = np.random.uniform(low=-1,high=1,size=(self.n, self.p))
-			# To satisfy covariate diversity, MUST contain the origin
-
+			# self.covariates = np.random.normal(loc=0,scale=1,size=(self.n, self.p))
 		else:
 			self.covariates = np.random.uniform(size=(self.n, self.p))
+		# To satisfy covariate diversity, MUST contain the origin
 
 	def set_rewards(self):
-		self.betas = np.random.uniform(size=(self.p, self.k)) #NOTE: Change this
+		if self.sparsity:
+			p_used = 5
+		else:
+			p_used = self.p
+		self.betas = np.zeros((self.p, self.k))
+		self.betas[0:p_used, :] = np.random.uniform(size=(p_used, self.k)) #NOTE: Change this
 		self.rewards = self.compute_rewards(self.covariates, self.betas)
 		# self.rewards = np.dot(self.covariates, self.betas)
 
