@@ -8,7 +8,7 @@ import numpy as np
 from sklearn import linear_model
 
 class Agent(object):
-	def __init__(self, n, h, k, q=50, greedy_only=False, name=None, **kwargs):
+	def __init__(self, n, h, k, greedy_only=False, name=None, **kwargs):
 		self.name = name
 		self.h = h
 		self.k = k
@@ -17,7 +17,6 @@ class Agent(object):
 		self.GS = np.array([])
 		self.history = np.array([])
 		self.greedy_only = greedy_only
-		self.q = q
 		if greedy_only:
 			self.FS_schedule = np.zeros((self.n)) - 1
 		else:
@@ -60,30 +59,38 @@ class Agent(object):
 		else:
 			self.history = np.vstack((self.history,data))
 
+	# def _FS_schedule(self):
+	# 	q = self.q
+	# 	FS_num = 0
+	# 	self.FS_schedule = np.zeros((self.n)) - 1 # initialize to all-greedy schedule (i.e. -1)
+	# 	for i in range(self.k):
+	# 		l = 0
+	# 		while ((2**l -1)*self.n*q + q*(i-1)+1) < self.n:
+	# 			for j in range((q*(i-1)+1),(q*i+1)):
+	# 				Ti = (2**l -1)*self.n*q + j
+	# 				if Ti < self.n:
+	# 					self.FS_schedule[Ti] = i
+	# 					FS_num = FS_num + 1
+	# 				else:
+	# 					break
+	# 			l = l+1
+	# 	print("FS_num: ", FS_num)
+	# 	print("FS_num2: ", len(np.nonzero(self.FS_schedule+1)))
+
+
 	def _FS_schedule(self):
-		q = self.q
 		FS_num = 0
 		self.FS_schedule = np.zeros((self.n)) - 1 # initialize to all-greedy schedule (i.e. -1)
-		for i in range(self.k):
-			l = 0
-			while ((2**l -1)*self.n*q + q*(i-1)+1) < self.n:
-				for j in range((q*(i-1)+1),(q*i+1)):
-					Ti = (2**l -1)*self.n*q + j
-					if Ti < self.n:
-						self.FS_schedule[Ti] = i
-						FS_num = FS_num + 1
-					else:
-						break
-				l = l+1
+		l = 0
+		tau = 2**(l+1) - 2 
+		while (tau+self.k) < self.n:
+			for arm in range(self.k):
+				self.FS_schedule[tau + arm] = arm
+			FS_num += 1
+			l = l+1
+			tau = 2**(l+1) - 2 
 		print("FS_num: ", FS_num)
 
-
-		# #TODO
-		# self.FS_schedule = np.zeros((self.n)) - 1 # initialize to all-greedy schedule (i.e. -1)
-		# FS_num = int(np.log(self.n) * 30) #TODO: change this 30 to sth else
-		# FS_t = np.random.choice(a=range(int(self.n/1)), size=FS_num, replace=False) #TODO: change /2 
-		# self.FS_schedule[FS_t] = np.random.randint(low=0, high=self.k, size=FS_num, dtype='I')
-		# print("FS_num: ", FS_num) #TODO: remove this
 
 	def _FS_decision(self, x):
 		rewards = self._predict_rewards(self.FS, x)

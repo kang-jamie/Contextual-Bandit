@@ -16,12 +16,12 @@ np.random.seed(111)
 
 ## Hyperparameters for the contextual bandit model
 k = 2 # number of arms
-# p = 3 # covariate dimension
-p = 100 # covariate dimension
-n = 10000 # number of data
+p = 5 # covariate dimension
+# p = 100 # covariate dimension
+n = 1000 # number of data
 
 ## Hyperparameters for the bandit agent
-h = 0.25
+h = 5
 
 ## Initialize bandit model
 bandit = ContextualBandit(n,p,k, diversity=True)
@@ -33,7 +33,7 @@ betas = bandit.betas
 ## Initialize agent
 agentList = []
 agentList.append(Agent_OLS(n=n, h=h, k=k, greedy_only=True, name= "Greedy_OLS"))
-agentList.append(Agent_OLS(n=n, h=h, k=k, q=20, greedy_only=False, name= "OLS with q=20"))
+agentList.append(Agent_OLS(n=n, h=h, k=k, greedy_only=False, name= "OLS"))
 # agentList.append(Agent_OLS(n=n, h=h, k=k, q=50, greedy_only=False, name= "OLS with q=50"))
 
 # agentList.append(Agent_LASSO(n=n, h=h, k=k, greedy_only=False, lam=0.01, name = "LASSO"))
@@ -56,12 +56,12 @@ for agent in agentList:
 				arm_t = agent._GS_decision(x_t, FS_filter=False)
 			else:
 				arm_t = agent._GS_decision(x_t, FS_filter=True)
-			y_t = bandit.get_rewards(x_t)[arm_t]
+			y_t = bandit.rewards[t,arm_t]
 			agent._update_GS_data(x_t, y_t, arm_t)
 
 		else: # Forced sampling
 			arm_t = int(agent.FS_schedule[t])
-			y_t = bandit.get_rewards(x_t)[arm_t]
+			y_t = bandit.rewards[t,arm_t]
 			agent._update_FS_data(x_t, y_t, arm_t)
 
 		# Log the history

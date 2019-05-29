@@ -7,13 +7,13 @@ jamiekang@stanford.edu
 import numpy as np
 
 class ContextualBandit(object):
-	def __init__(self, n, p, k, diversity=True, sparsity=False):
+	def __init__(self, n, p, k, diversity=True, sparsity=False, linear=True):
 		self.n = n
 		self.p = p
 		self.k = k
 		self.sparsity = sparsity
 		self.diversity = diversity
-
+		self.linear = linear
 		self.set_covariates()
 		self.set_rewards()
 	def __str__(self):
@@ -38,7 +38,10 @@ class ContextualBandit(object):
 		# self.rewards = np.dot(self.covariates, self.betas)
 
 	def compute_rewards(self, x, betas):
-		rewards = np.dot(x,betas)
+		if self.linear:
+			rewards = np.dot(x,betas)
+		else:
+			rewards = np.dot(x**3,betas) #cubic rewards without interaction
 		return(rewards)
 
 	def get_covariate(self, t):
