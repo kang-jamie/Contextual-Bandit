@@ -1,7 +1,0 @@
-#Do not track the following files
-draft.py
-
-#Do not track figures
-*.png
-*.csv
-__pychache__/
