@@ -3,3 +3,5 @@ draft.py
 
 #Do not track figures
 *.png
+*.csv
+__pychache__/
