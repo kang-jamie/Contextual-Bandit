@@ -6,37 +6,42 @@ jamiekang@stanford.edu
 
 import numpy as np
 from bandit import ContextualBandit
-from agents import Agent, Agent_LASSO, Agent_OLS
+from agents import Agent, Agent_LASSO, Agent_OLS, Agent_MARS, Agent_MARS2
 from sklearn import linear_model
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import pandas as pd
 
 ## Set random seed
-np.random.seed(111)
+np.random.seed(123)
 
 ## Hyperparameters for the contextual bandit model
 k = 2 # number of arms
-p = 50 # covariate dimension
+p = 30 # covariate dimension
 # p = 100 # covariate dimension
-n = 5000 # number of data
+n = 1000 # number of data
 
 ## Hyperparameters for the bandit agent
 h = 5
 
 ## Initialize bandit model
-bandit = ContextualBandit(n,p,k, diversity=True, sparsity=True, linear=True)
+bandit = ContextualBandit(n,p,k, diversity=True, reward_type=4)
+print("True params:",)
 
 X = bandit.covariates
 rewards = bandit.rewards
 betas = bandit.betas
 
-## Initialize agent
+## Initialize agent: Uncomment the lines that correspond to agents in use
 agentList = []
-agentList.append(Agent_OLS(n=n, h=h, k=k, greedy_only=True, name= "Greedy_OLS"))
-agentList.append(Agent_OLS(n=n, h=h, k=k, greedy_only=False, name= "OLS"))
-agentList.append(Agent_LASSO(n=n, h=h, k=k, greedy_only=False, lam= 0.05, name= "LASSO"))
-
-# agentList.append(Agent_OLS(n=n, h=h, k=k, q=50, greedy_only=False, name= "OLS with q=50"))
+# agentList.append(Agent_OLS(n=n, h=h, k=k, greedy_only=True, name= "Greedy_OLS"))
+# agentList.append(Agent_OLS(n=n, h=h, k=k, greedy_only=False, name= "OLS"))
+# agentList.append(Agent_OLS(n=n, h=h, k=k, p=p, greedy_only=False, basis_expansion=True, name= "OLS_BE"))
+# agentList.append(Agent_LASSO(n=n, h=h, k=k, greedy_only=False, lam= 0.05, name= "LASSO"))
+agentList.append(Agent_LASSO(n=n, h=h, k=k, p=p, greedy_only=False, basis_expansion=True, lam= 0.05, name= "LASSO_BE"))
+agentList.append(Agent_MARS2(n=n, h=h, k=k, greedy_only=False, name="MARS2"))
+# agentList.append(Agent_MARS(n=n, h=h, k=k, greedy_only=False, name="MARS"))
 
 # agentList.append(Agent_LASSO(n=n, h=h, k=k, greedy_only=False, lam=0.01, name = "LASSO"))
 
@@ -49,7 +54,7 @@ for agent in agentList:
 	rewards = np.zeros(n) 
 
 	for t in range(n):
-		if  t%100 == 0:
+		if  t%10 == 0:
 			progress = int(t/n * 100)
 			print(progress, "%","done!")
 		x_t = X[t,]
@@ -69,20 +74,28 @@ for agent in agentList:
 		# Log the history
 		agent._update_history(x_t, y_t, arm_t)
 		reward = y_t		
-		optimal_rewards[t] = bandit.get_true_arm_reward(x_t)[1] 
+		optimal_rewards[t] = bandit.rewards[t,:].max()
+		# optimal_rewards[t] = bandit.get_true_arm_reward(x_t)[1] 
 		rewards[t] = reward 
 
 	## Sanity check
+	# print("Arm: ", arm_t)
+	# print("Predicted params: ", agent.params)
+	# print("True params: ", bandit.betas)
+
 	# print("Predicted rewards: ", agent.history[(n-10):n,1])
 	# print("Pulled arms: ", agent.history[(n-10):n,2])
 	# true_arms = np.argmax(rewards[(n-10):n, :], axis=1)
-	# print("True rewards: ", true_rewards[(n-10):n])
+	# print("True rewards: ", optimal_rewards[(n-10):n])
 	# print("True arms: ", true_arms)
 
 	regrets = optimal_rewards - rewards
-	cum_regret = np.cumsum(regrets)
-	avg_regret = cum_regret / (np.array(range(n))+1)
-	avg_regret[0] = avg_regret[1]
+	cum_regret = np.cumsum(regrets) 
+	avg_regret = cum_regret[0:n] / np.array(range(1,n+1))
+	cum_name = "p30_reward4_"+str(agent)+"_cum.csv"
+	avg_name = "p30_reward4_"+str(agent)+"_avg.csv"
+	np.savetxt(cum_name, cum_regret,delimiter=",")
+	np.savetxt(avg_name, avg_regret,delimiter=",")
 
 	## Plot the results
 	ax1.plot(cum_regret, label=str(agent))

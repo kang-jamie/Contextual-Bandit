@@ -6,9 +6,10 @@ jamiekang@stanford.edu
 
 import numpy as np
 from sklearn import linear_model
+from pyearth import Earth
 
 class Agent(object):
-	def __init__(self, n, h, k, greedy_only=False, name=None, **kwargs):
+	def __init__(self, n, h, k, greedy_only=False, basis_expansion=False, p=None, name=None, **kwargs):
 		self.name = name
 		self.h = h
 		self.k = k
@@ -21,16 +22,22 @@ class Agent(object):
 			self.FS_schedule = np.zeros((self.n)) - 1
 		else:
 			self._FS_schedule()	
+		self.basis_expansion = basis_expansion
+		self.p = p
 
 	def __str__(self):
 		return self.name
 		# pass
 
 	def _feature_map(self, x):
-		#TODO
-		# z = 
-		z = np.array(x)
-		return x
+		if self.basis_expansion:
+			z1 = np.reshape(x, (-1,self.p))
+			z2 = z1**2
+			z = np.concatenate((z2,z1), axis=1) #TODO
+			# print("z: ", z)
+		else:
+			z = np.array(x)
+		return z
 
 	def _update_FS_data(self, x, y, arm):
 		data = [x, y, arm]
@@ -103,14 +110,17 @@ class Agent(object):
 			z = self._feature_map(x)
 			rewards = np.empty((self.k)) # create an empty reward vector
 			for arm in range(self.k):
-				data_i = data[data[:,2]==arm,:] # data corresponding to the chosen arm
+				data_i = data[data[:,2]==arm,:] # data corresponding to the chosen arm i
 				if data_i.size==0: # No data with the specified arm pulled
 					rewards[arm] = 0 #NOTE: some arbitrarily small number or 0? 
 				else: # if the arm data exists
 					x_i = data_i[:,0].tolist() # convert array of array to array
 					y_i = data_i[:,1]
 					z_i = self._feature_map(x_i)
+					# print("x_i: ",x_i)
+					# print("z_i: ",z_i)
 					rewards[arm] = self.estimate_reward(z_i, y_i, z) # estimate reward for new covariate using the arm data
+
 		return rewards
 
 	def estimate_reward(self, z_train, y_train, z):
@@ -127,9 +137,16 @@ class Agent_LASSO(Agent):
 		return self.name
 
 	def estimate_reward(self, z_train, y_train, z):
-		lasso_model = linear_model.Lasso(alpha=self.lam)
+		lasso_model = linear_model.Lasso(alpha=self.lam, fit_intercept=False)
+		# lasso_model = linear_model.Lasso()
+
 		lasso_model.fit(z_train, y_train)
-		reward = lasso_model.predict([z])
+		# reward = lasso_model.predict([z])
+		if self.basis_expansion:
+			reward = lasso_model.predict(z)
+		else:
+			reward = lasso_model.predict([z])
+		self.params = lasso_model.coef_
 		return reward
 
 class Agent_OLS(Agent):
@@ -143,10 +160,44 @@ class Agent_OLS(Agent):
 	def estimate_reward(self, z_train, y_train, z):
 		ols_model = linear_model.LinearRegression()
 		ols_model.fit(z_train, y_train)
-		reward = ols_model.predict([z])
+		if self.basis_expansion:
+			reward = ols_model.predict(z)
+		else:
+			reward = ols_model.predict([z])
 		return reward
+
+
+class Agent_MARS(Agent):
+	def __init__(self, **kwargs):
+		Agent.__init__(self, **kwargs)
+
+	def __str__(self):
+		return self.name
+
+	def estimate_reward(self, z_train, y_train, z):
+		rcond=None
+		mars_model = Earth(verbose=0)
+		mars_model.fit(z_train, y_train)
+		reward = mars_model.predict([z])
+		# print("params: ", mars_model.coef_)
+		return reward
+
+class Agent_MARS2(Agent):
+	def __init__(self, **kwargs):
+		Agent.__init__(self, **kwargs)
+
+	def __str__(self):
+		return self.name
+
+	def estimate_reward(self, z_train, y_train, z):
+		rcond=None
+		mars_model = Earth(max_degree=2)
+		mars_model.fit(z_train, y_train)
+		reward = mars_model.predict([z])
+		# print("params: ", mars_model.coef_)
+		return reward
+
 
 # class Agent_KNN(Agent):
 
 # class Agent_RF(Agent):
-
